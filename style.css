@@ -57,12 +57,10 @@ body{
 
 #player_one_board,
 #player_two_board{
-    /* margin-top: 50px; */
     position: relative;
     display: flex;
     flex-wrap: wrap;
     width: calc(var(--cell_size)*10);
-    position: relative;
 }
 
 #player_one_board>div,
