@@ -22,6 +22,7 @@ let currentDroppable = null;
 battleship_element.onmousedown = function (e) { // добавляем слушатель события на корабль нажатия мышки
     let shiftX = e.clientX - battleship_element.getBoundingClientRect().left; //сдвиг по оси Х
     let shiftY = e.clientY - battleship_element.getBoundingClientRect().top; //сдвиг по оси У
+    console.log(shiftX, shiftY);
     let isInDropZone = false;
 
     moveAt(e.pageX, e.pageY);
@@ -39,7 +40,7 @@ battleship_element.onmousedown = function (e) { // добавляем слуша
         battleship_element.hidden = true;
         let elemBelow = document.elementFromPoint(e.clientX, e.clientY);
         battleship_element.hidden = false;
-        
+
         if (!elemBelow) return;
 
         let droppableBelow = elemBelow.closest('.droppable');
@@ -53,8 +54,8 @@ battleship_element.onmousedown = function (e) { // добавляем слуша
             currentDroppable = droppableBelow;
             if (currentDroppable) {
                 isInDropZone = true;
-                new_left = Math.floor((e.pageX- player_one_board_element.getBoundingClientRect().left) / cell_size) * cell_size;
-                new_top = Math.floor(Math.abs((e.pageY - player_one_board_element.getBoundingClientRect().top )) / cell_size) * cell_size;
+                new_left = Math.floor((e.pageX - player_one_board_element.getBoundingClientRect().left) / cell_size) * cell_size;
+                new_top = Math.floor(Math.abs((e.pageY - player_one_board_element.getBoundingClientRect().top)) / cell_size) * cell_size;
             }
         }
     }
@@ -62,35 +63,30 @@ battleship_element.onmousedown = function (e) { // добавляем слуша
     document.addEventListener("mousemove", onMouseMove);
 
     battleship_element.onmouseup = function () {
-        document.removeEventListener("mousemove", onMouseMove);
-        battleship_element.onmouseup = null;
+        document.removeEventListener("mousemove", onMouseMove);//отвязываем обработчик события на mousemove
+        battleship_element.onmouseup = null; //отвязываем обработчик события на onmouseup
 
-        if (!isInDropZone) {
-            moveAt(shiftX, shiftY);
-        }else {
-            if(new_left > (cell_count_x_y - battleship_element.getBoundingClientRect().width/cell_size) * 35){
-                new_left = (cell_count_x_y - battleship_element.getBoundingClientRect().width/cell_size) * 35
-                console.log('прям очень хорошо расчитано',new_left)
+        if (!isInDropZone) {//если мы не внутри поля боя
+            moveAt(shiftX, shiftY); //вернуть корабль на исходную позицию
+        } else {//если внутри поля боя
+            //от кол-ва ячеек по горизонтали одной линии отнимаем ширину корабля деленную на размер ячейки
+            //разницу множим на 35  и сравниваем координаты new_left и максимально доступную ячейку для установки
+            let max_available_coordinate_to_set_left = (cell_count_x_y - battleship_element.getBoundingClientRect().width / cell_size) * cell_size;
+
+            if (new_left > max_available_coordinate_to_set_left) {
+                new_left = max_available_coordinate_to_set_left
+                //ставим координаты максимально доступные для корабля
             }
+
             battleship_element.style.display = 'none';
-
-            player_one_board_element.insertAdjacentHTML(
-                'beforeend',
-                `<img   
-                    style="
-                        left: ${new_left}px;
-                        top: ${new_top}px
-                    " 
-                    class="cell_4 ship" 
-                    src="/images/4_cell_ship.jpg"
-                    alt="4cell_ship"
-                    id="new_ship_4_cell"; 
-                >`);
+            player_one_board_element.insertAdjacentHTML('beforeend',
+                `<img style="left: ${new_left}px; top: ${new_top}px" class="cell_4 ship"  src="/images/4_cell_ship.jpg" alt="4cell_ship" id="new_ship_4_cell"; >`);
             let new_ship_insight_board = document.getElementById("new_ship_4_cell");
+            console.log(new_ship_insight_board);
 
-            new_ship_insight_board.onmousedown = function(e){
-                dragNDropForShipInField(e,new_ship_insight_board)
-            };    
+            new_ship_insight_board.onmousedown = function (e) {
+                dragNDropForShipInField(e, new_ship_insight_board)
+            };
         }
     }
     battleship_element.ondragstart = function () {
@@ -99,20 +95,45 @@ battleship_element.onmousedown = function (e) { // добавляем слуша
 }
 
 
-function dragNDropForShipInField (e, ship_element){
+function dragNDropForShipInField(e, ship_element) {
     let shiftX = e.clientX - ship_element.getBoundingClientRect().left; //сдвиг по оси Х
     let shiftY = e.clientY - ship_element.getBoundingClientRect().top; //сдвиг по оси У
 
     moveAt(e.pageX, e.pageY);
     function moveAt(pageX, pageY) {
-        let top_coordinate_condition = (Math.floor((pageX - player_one_board_element.getBoundingClientRect().left - shiftX) / cell_size) * cell_size) > ship_element.getBoundingClientRect().left - player_one_board_element.getBoundingClientRect().left 
-        if(top_coordinate_condition){
-            ship_element.style.left = (Math.floor((pageX - player_one_board_element.getBoundingClientRect().left - shiftX) / cell_size) * cell_size) + 'px'
+
+        let old_coordinate_left = ship_element.getBoundingClientRect().left - player_one_board_element.getBoundingClientRect().left;
+        let new_coordinate_left = Math.floor((pageX - player_one_board_element.getBoundingClientRect().left - shiftX) / cell_size) * cell_size;
+        let max_available_coordinate_to_set_left = (cell_count_x_y - ship_element.getBoundingClientRect().width / cell_size) * cell_size;
+        let left_coordinate_condition = new_coordinate_left > old_coordinate_left;
+
+        if (left_coordinate_condition) {
+            if (new_coordinate_left > max_available_coordinate_to_set_left) {
+                ship_element.style.left = max_available_coordinate_to_set_left + 'px'
+            } else {
+                ship_element.style.left = new_coordinate_left + 'px'
+            }
         }
-        
+
+        let old_coordinate_top = ship_element.getBoundingClientRect().top - player_one_board_element.getBoundingClientRect().top;
+        let new_coordinate_top = Math.floor((pageY - player_one_board_element.getBoundingClientRect().top - shiftY) / cell_size) * cell_size;
+        let max_available_coordinate_to_set_top = (cell_count_x_y - ship_element.getBoundingClientRect().height / cell_size) * cell_size;
+        let top_coordinate_condition = new_coordinate_top > old_coordinate_top;
+
+
+        if (top_coordinate_condition) {
+            if (new_coordinate_top > max_available_coordinate_to_set_top) {
+                ship_element.style.top = max_available_coordinate_to_set_top + 'px'
+            } else {
+                ship_element.style.top = new_coordinate_top + 'px'
+            }
+        }
+
+
+
     }
 
-    function onMouseMove(e) {
+    function onMouseMove(e) {// обработчиком события движения мышки
         moveAt(e.pageX, e.pageY);
     }
 
@@ -128,24 +149,3 @@ function dragNDropForShipInField (e, ship_element){
     }
 }
 
-
-
-/* 
-координаты поля боя - х - 200 у - 200
-координат корабля х -225 у - 210
-
-225 - 200 -> 25x
-210 - 200 -> 10y
-
-200 < x < 235  -> new_left = 0
-235 < x < 270  -> new_left = 35
-305 < x < 340  -> new_left = 70
-
-215 - 200               result = 0
-Math.floor((ShipX - BoardX)/35 ) 
--> 0.4 -> 0 * 35 -> 0
-270 - 200 -> 70/35 -> 2 *35  -> 70
-289 - 200 -> 89/35 -> 2.5 -> 2 * 35 -> 70
-
-332-295 - >37/35 -> 1 * 35 ->35
-*/

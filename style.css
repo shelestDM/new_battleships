@@ -2,7 +2,7 @@
     margin: 0;
     padding: 0;
     box-sizing: border-box;
-    transition: 1s;
+    /* transition: .25s; */
     font-family: monospace;
     color: blue;
 }
@@ -191,8 +191,8 @@ body{
     position: absolute;
     top: 0px;
     left: 0px;
+    height: 35px;
     z-index: 1000;
-    /* opacity: 0.5; */
     border: 1px solid black;
 }
 .cell_4{
