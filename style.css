@@ -6,6 +6,9 @@
     font-family: monospace;
     color: blue;
 }
+body{
+    background-color: gray;
+}
 :root{
     --cell_size: 35px;
     --player_one_ship_color: orange;
@@ -195,6 +198,17 @@ body{
     z-index: 1000;
     border: 1px solid black;
 }
+.new_ship{
+    position: absolute;
+    height: 35px;
+    z-index: 1000;
+    border: 1px solid black;
+}
+
 .cell_4{
     width: calc(var(--cell_size)*4);
 }
+.cell_3{
+    width: calc(var(--cell_size)*3);
+}
+
