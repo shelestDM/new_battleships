@@ -195,13 +195,13 @@ body{
     top: 0px;
     left: 0px;
     height: 35px;
-    z-index: 1000;
+    z-index: 100;
     border: 1px solid black;
 }
 .new_ship{
     position: absolute;
     height: 35px;
-    z-index: 1000;
+    z-index: 100;
     border: 1px solid black;
 }
 
@@ -211,4 +211,9 @@ body{
 .cell_3{
     width: calc(var(--cell_size)*3);
 }
-
+.cell_2{
+    width: calc(var(--cell_size)*2);
+}
+.cell_1{
+    width: calc(var(--cell_size)*1);
+}
