@@ -205,7 +205,8 @@ function writeShipCoordinates(top_coordinate, left_coordinate, ship) {
     ship_coordinates[ship.id] = coordinates;
     console.log(ship_coordinates);
 
-    // markerUnavailableCells(coordinates);
+    console.log(getUnavailableCells(coordinates));
+    
 }
 
 function getAlignedCoordinate(ship_element, player_one_board_element, shiftX, shiftY) {
@@ -226,13 +227,16 @@ function collectAllShipCoordinates (){
     console.log(collected_ship_coordinates);
 }
 
-function markerUnavailableCells(ship_coordinate_arr) {
+function getUnavailableCells(ship_coordinate_arr) {
     const unavailable_cells = [...ship_coordinate_arr];
     let start_coordinate = Math.min(...ship_coordinate_arr);
     let end_coordinate = Math.max(...ship_coordinate_arr);
 
     ship_coordinate_arr.forEach((id) => {
         if (id === start_coordinate) {
+            if(String(id).includes('1')){
+                //сделать проверку что если первая клетка и для остальных так же сделать  типа если последняя или крайние туда сюда
+            }
             unavailable_cells.push(...[id - 1, id - 11, id - 10, id + 9, id + 10]);
         } else if (id === end_coordinate) {
             unavailable_cells.push(...[id - 10, id - 9, id + 1, id + 10, id + 11]);
@@ -240,5 +244,12 @@ function markerUnavailableCells(ship_coordinate_arr) {
             unavailable_cells.push(...[id - 10, id + 10])
         }
     })
-    console.log(unavailable_cells.sort());
+    console.log(unavailable_cells);
+    return unavailable_cells.filter(id=>id>=1);
+}
+
+function setCellsUnavailableToSetShip (coordinates) {
+    coordinates.forEach((id)=>{
+        document.getElementById(`id${id}`).classList.toggle("droppable");
+    })
 }
