@@ -1,6 +1,8 @@
+//unuse
+const battleship_element = document.getElementById('battleship');
+//use
 const player_one_board_element = document.getElementById('player_one_board');
 const player_two_board_element = document.getElementById('player_two_board');
-const battleship_element = document.getElementById('battleship');
 const cell_size = 35;
 const cell_count_x_y = 10;
 
@@ -229,22 +231,30 @@ function collectAllShipCoordinates (){
 
 function getUnavailableCells(ship_coordinate_arr) {
     const unavailable_cells = [...ship_coordinate_arr];
-    let start_coordinate = Math.min(...ship_coordinate_arr);
-    let end_coordinate = Math.max(...ship_coordinate_arr);
 
-    ship_coordinate_arr.forEach((id) => {
-        if (id === start_coordinate) {
-            if(String(id).includes('1')){
-                //сделать проверку что если первая клетка и для остальных так же сделать  типа если последняя или крайние туда сюда
-            }
-            unavailable_cells.push(...[id - 1, id - 11, id - 10, id + 9, id + 10]);
-        } else if (id === end_coordinate) {
-            unavailable_cells.push(...[id - 10, id - 9, id + 1, id + 10, id + 11]);
-        } else {
-            unavailable_cells.push(...[id - 10, id + 10])
+    for (let i = 1; i <= ship_coordinate_arr.length; i++) {
+        if(i===1){
+            unavailable_cells.push(
+                ship_coordinate_arr[0]-1,
+                ship_coordinate_arr[0]+ship_coordinate_arr.length,
+                ship_coordinate_arr[0]+10, 
+                ship_coordinate_arr[0]-10,
+                ship_coordinate_arr[0]-10-1,
+                ship_coordinate_arr[0]-10+1,
+                ship_coordinate_arr[0]+10+1,
+                ship_coordinate_arr[0]+10-1,
+            )
+        }else{
+            unavailable_cells.push(
+                ship_coordinate_arr[0]+10+i,
+                ship_coordinate_arr[0]-10+i,
+            )
         }
+    }
+    unavailable_cells.forEach((id)=>{
+        document.getElementById(`id${id}`).style.background = 'red'
     })
-    console.log(unavailable_cells);
+
     return unavailable_cells.filter(id=>id>=1);
 }
 
@@ -253,3 +263,5 @@ function setCellsUnavailableToSetShip (coordinates) {
         document.getElementById(`id${id}`).classList.toggle("droppable");
     })
 }
+
+getUnavailableCells([55,56])
