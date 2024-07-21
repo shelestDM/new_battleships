@@ -11,6 +11,28 @@ const ship_coordinates = {};
 const ship_first_put = {};
 let old_unavailable_cells = {};
 
+let first_player_stat_board = document.getElementById('player_one_ships_stat');
+let first_player_stat_board_top_coordinate = first_player_stat_board.getBoundingClientRect().top;
+
+
+const started_ship_coordinates = {
+    'ship_1_1': {left:50, top: first_player_stat_board_top_coordinate + cell_size},
+    'ship_1_2': {left:100, top: first_player_stat_board_top_coordinate + cell_size},
+    'ship_1_3': {left:150, top: first_player_stat_board_top_coordinate + cell_size},
+    'ship_1_4': {left:200, top: first_player_stat_board_top_coordinate + cell_size},
+
+    'ship_2_1': {left:50, top: first_player_stat_board_top_coordinate + cell_size * 2.5},
+    'ship_2_2': {left:125, top: first_player_stat_board_top_coordinate + cell_size * 2.5},
+    'ship_2_3': {left:200, top: first_player_stat_board_top_coordinate + cell_size * 2.5},
+
+    'ship_3_1': {left:50, top: first_player_stat_board_top_coordinate + cell_size * 4},
+    'ship_3_2': {left:50, top: first_player_stat_board_top_coordinate + cell_size * 5.5},
+    'ship_3_3': {left:50, top: first_player_stat_board_top_coordinate + cell_size * 7},
+
+    'ship_4': {left:50, top: first_player_stat_board_top_coordinate + cell_size * 8.5},
+
+}
+
 function generateHTMLBoardGridForBothPlayers() {
     while (count_of_cells > 0) {
         player_one_board_element.insertAdjacentHTML("afterbegin", `<div id=id${count_of_cells} class="droppable"></div>`);
@@ -24,6 +46,10 @@ generateHTMLBoardGridForBothPlayers();
 const ships_elements = document.querySelectorAll(".ship");
 
 ships_elements.forEach((ship) => {
+
+    ship.style.left = started_ship_coordinates[ship.id].left + 'px';
+    ship.style.top = started_ship_coordinates[ship.id].top + 'px';
+
     let currentDroppable = null;
     let isShipInsideBoard = false;
 
@@ -33,12 +59,24 @@ ships_elements.forEach((ship) => {
         let shiftY = e.clientY - ship.getBoundingClientRect().top; //сдвиг по оси У
         let isInDropZone = false;
 
+        if(isShipInsideBoard){
+            setDroppableClassToCell(old_unavailable_cells[ship.id])
+            old_unavailable_cells[ship.id] = []
+        }
+        
         moveAt(e.pageX, e.pageY);
-        let new_left = 0;
-        let new_top = 0;
+        let new_left = 
+            ship_coordinates[ship.id] 
+                ? document.getElementById(`id${ship_coordinates[ship.id][0]}`).getBoundingClientRect().left - player_one_board_left
+                : 0;
+
+        let new_top = 
+            ship_coordinates[ship.id] 
+                ? document.getElementById(`id${ship_coordinates[ship.id][0]}`).getBoundingClientRect().top - player_one_board_top 
+                : 0;
 
         function moveAt(pageX, pageY) {
-            ship.style.left = pageX - shiftX - (isShipInsideBoard ? player_one_board_left : 0) + 'px';
+            ship.style.left =  pageX - shiftX - (isShipInsideBoard ? player_one_board_left : 0) + 'px';
             ship.style.top = pageY - shiftY - (isShipInsideBoard ? player_one_board_top : 0) + 'px';
         }
 
@@ -52,8 +90,16 @@ ships_elements.forEach((ship) => {
 
             let droppableBelow = elemBelow.closest('.droppable');
 
-            if (currentDroppable != droppableBelow) {
+            if(isShipInsideBoard){
+                currentDroppable = droppableBelow;
+                if (currentDroppable) {
+                    isInDropZone = true;
+                    new_left = Math.floor((e.pageX - player_one_board_left) / cell_size) * cell_size;
+                    new_top = Math.floor(Math.abs((e.pageY - player_one_board_top)) / cell_size) * cell_size;
+                }
+            }
 
+            if (currentDroppable != droppableBelow) {
                 if (currentDroppable) {
                     isInDropZone = false;
                 }
@@ -73,10 +119,14 @@ ships_elements.forEach((ship) => {
             document.removeEventListener("mousemove", onMouseMove);
             ship.onmouseup = null;
             ship.style.zIndex = 100;
-            
-            if (!isInDropZone) {
-                moveAt(shiftX, shiftY);
-            } else {
+
+            if (!isInDropZone && !isShipInsideBoard) {
+                moveAt(
+                    started_ship_coordinates[ship.id].left + shiftX,
+                    started_ship_coordinates[ship.id].top + shiftY
+                );
+            } 
+            else {
                 let max_available_coordinate_to_set_left = (cell_count_x_y - ship.getBoundingClientRect().width / cell_size) * cell_size;
 
                 if (new_left > max_available_coordinate_to_set_left) {
@@ -101,6 +151,8 @@ function getStartedId(top_coordinate, left_coordinate) {
     let id = '';
     if (top_coordinate / 35 === 0) {
         id = String(left_coordinate / 35 + 1)
+    } else if(left_coordinate/35 + 1 === 10){
+        id = String((top_coordinate / 35) + 1) + '0';
     } else {
         id = String(top_coordinate / 35) + String(left_coordinate / 35 + 1)
     }
@@ -108,8 +160,8 @@ function getStartedId(top_coordinate, left_coordinate) {
 }
 
 function writeShipCoordinates(top_coordinate, left_coordinate, ship) {
-    let coordinates = [getStartedId(top_coordinate, left_coordinate)]
-    if(ship_coordinates[ship.id]){
+    let coordinates = [getStartedId(top_coordinate, left_coordinate)];
+    if (ship_coordinates[ship.id]) {
         ship_first_put[ship.id] = false;
     }
     for (let i = 1; i < ship.getBoundingClientRect().width / cell_size; i++) {
@@ -127,28 +179,49 @@ function collectAllShipCoordinates() {
 
 function getUnavailableCells(ship_coordinate_arr, ship) {
     const unavailable_cells = [...ship_coordinate_arr];
+    let is_ship_at_the_left_wall = String(ship_coordinate_arr[0]).endsWith('1');
+    let is_ship_at_the_right_wall = String(ship_coordinate_arr[ship_coordinate_arr.length - 1]).endsWith('0')
 
     for (let i = 1; i <= ship_coordinate_arr.length; i++) {
+        let is_ship_ends_at_the_right_wall = String(ship_coordinate_arr[0] + i).endsWith('1')
         if (i === 1) {
             unavailable_cells.push(
-                ship_coordinate_arr[0] - 1,
-                ship_coordinate_arr[0] + ship_coordinate_arr.length,
                 ship_coordinate_arr[0] + 10,
                 ship_coordinate_arr[0] - 10,
-                ship_coordinate_arr[0] - 10 - 1,
+            )
+
+            is_ship_at_the_right_wall && ship_coordinate_arr.length === 1
+            ? ''
+            : unavailable_cells.push(
                 ship_coordinate_arr[0] - 10 + 1,
                 ship_coordinate_arr[0] + 10 + 1,
-                ship_coordinate_arr[0] + 10 - 1,
             )
+
+            is_ship_at_the_left_wall
+                ? ''
+                : unavailable_cells.push(
+                    ship_coordinate_arr[0] - 1,
+                    ship_coordinate_arr[0] + 10 - 1,
+                    ship_coordinate_arr[0] - 10 - 1
+                )
+            is_ship_at_the_right_wall
+                ? ''
+                :
+                unavailable_cells.push(
+                    ship_coordinate_arr[0] + ship_coordinate_arr.length
+                )
+
         } else {
-            unavailable_cells.push(
-                ship_coordinate_arr[0] + 10 + i,
-                ship_coordinate_arr[0] - 10 + i,
-            )
+            is_ship_ends_at_the_right_wall
+                ? ''
+                : unavailable_cells.push(
+                    ship_coordinate_arr[0] + 10 + i,
+                    ship_coordinate_arr[0] - 10 + i,
+                )
         }
     }
 
-    if(old_unavailable_cells[ship.id]){
+    if (old_unavailable_cells[ship.id]) {
         setDroppableClassToCell(old_unavailable_cells[ship.id])
     }
 
@@ -160,14 +233,23 @@ function getUnavailableCells(ship_coordinate_arr, ship) {
 
 function setCellsUnavailableToSetShip(coordinates) {
     coordinates.forEach((id) => {
-        document.getElementById(`id${id}`).classList.toggle("droppable");
-        document.getElementById(`id${id}`).style.background = 'teal';
+        if (document.getElementById(`id${id}`)) {
+            document.getElementById(`id${id}`).classList.toggle("droppable");
+            document.getElementById(`id${id}`).style.background = 'teal';
+        }
     })
 }
 
-function setDroppableClassToCell(coordinates){
-    coordinates.forEach((id)=>{
-        document.getElementById(`id${id}`).classList.add("droppable");
-        document.getElementById(`id${id}`).style.background = 'white';
+function setDroppableClassToCell(coordinates) {
+    coordinates.forEach((id) => {
+        if (document.getElementById(`id${id}`)) {
+            document.getElementById(`id${id}`).classList.add("droppable");
+            document.getElementById(`id${id}`).style.background = 'gray';
+        }
     })
+}
+
+function setCoordinatesToShip(ship, top_coordinate, left_coordinate){
+    ship.style.left = top_coordinate + 'px';
+    ship.style.top = left_coordinate + 'px';
 }

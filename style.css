@@ -7,7 +7,7 @@
     color: blue;
 }
 body{
-    background-color: gray;
+    /* background-color: gray; */
 }
 :root{
     --cell_size: 35px;
@@ -86,10 +86,10 @@ body{
 }
 #player_one_ships_stat,
 #player_two_ships_stat{
-    min-width: calc(var(--cell_size)*10);
+    min-width: calc(var(--cell_size)*7);
     border-radius: 8px;
     border: 1px solid gray;
-    /* position: relative; */
+
 }
 
 @media (min-width: 768px) {
