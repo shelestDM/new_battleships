@@ -1,70 +1,180 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Document</title>
-    <link rel="stylesheet" href="style.css">
-</head>
-<body>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
     <h1 class="header">BattleShips</h1>
     <h2 id="turn">
-        <p class="message"></p>
-        <p class="dots"></p>
+      <p class="message"></p>
+      <p class="dots"></p>
     </h2>
     <div id="board">
-        <div class="items_wrapper">
-            <h3 id="player_one_name">Player 1</h3>
-            <div class="bords_wrapper">
-                <div id="player_one_ships_stat">
-                    <img  id="ship_player_one_1_1" class="cell_1 ship" src="/images/1_cell_ship.png" alt="3cell_ship">
-                    <img  id="ship_player_one_1_2" class="cell_1 ship" src="/images/1_cell_ship.png" alt="3cell_ship">
-                    <img  id="ship_player_one_1_3" class="cell_1 ship" src="/images/1_cell_ship.png" alt="3cell_ship">
-                    <img  id="ship_player_one_1_4" class="cell_1 ship" src="/images/1_cell_ship.png" alt="3cell_ship">
+      <div class="items_wrapper">
+        <h3 id="player_one_name">Player 1</h3>
+        <div class="bords_wrapper">
+          <div id="player_one_ships_stat">
+            <img
+              id="ship_player_one_1_1"
+              class="cell_1 ship"
+              src="/images/1_cell_ship.png"
+              alt="3cell_ship"
+            />
+            <img
+              id="ship_player_one_1_2"
+              class="cell_1 ship"
+              src="/images/1_cell_ship.png"
+              alt="3cell_ship"
+            />
+            <img
+              id="ship_player_one_1_3"
+              class="cell_1 ship"
+              src="/images/1_cell_ship.png"
+              alt="3cell_ship"
+            />
+            <img
+              id="ship_player_one_1_4"
+              class="cell_1 ship"
+              src="/images/1_cell_ship.png"
+              alt="3cell_ship"
+            />
 
-                    <img  id="ship_player_one_2_1" class="cell_2 ship" src="/images/2_cell_ship.png" alt="3cell_ship">
-                    <img  id="ship_player_one_2_2" class="cell_2 ship" src="/images/2_cell_ship.png" alt="3cell_ship">
-                    <img  id="ship_player_one_2_3" class="cell_2 ship" src="/images/2_cell_ship.png" alt="3cell_ship">
+            <img
+              id="ship_player_one_2_1"
+              class="cell_2 ship"
+              src="/images/2_cell_ship.png"
+              alt="3cell_ship"
+            />
+            <img
+              id="ship_player_one_2_2"
+              class="cell_2 ship"
+              src="/images/2_cell_ship.png"
+              alt="3cell_ship"
+            />
+            <img
+              id="ship_player_one_2_3"
+              class="cell_2 ship"
+              src="/images/2_cell_ship.png"
+              alt="3cell_ship"
+            />
 
-                    <img  id="ship_player_one_3_1" class="cell_3 ship" src="/images/3_cell_ship.png" alt="3cell_ship">
-                    <img  id="ship_player_one_3_2" class="cell_3 ship" src="/images/3_cell_ship.png" alt="3cell_ship">
+            <img
+              id="ship_player_one_3_1"
+              class="cell_3 ship"
+              src="/images/3_cell_ship.png"
+              alt="3cell_ship"
+            />
+            <img
+              id="ship_player_one_3_2"
+              class="cell_3 ship"
+              src="/images/3_cell_ship.png"
+              alt="3cell_ship"
+            />
 
-                    <img  id="ship_player_one_4" class="cell_4 ship" src="/images/4_cell_ship.jpg" alt="4cell_ship">
-                </div>
-                <div id="player_one_board" class=""></div>
-            </div>
+            <img
+              id="ship_player_one_4"
+              class="cell_4 ship"
+              src="/images/4_cell_ship.jpg"
+              alt="4cell_ship"
+            />
+          </div>
+          <div id="player_one_board" class=""></div>
         </div>
-        <div class="items_wrapper">
-            <h3 id="player_two_name">Player 2</h3>
-            <div class="bords_wrapper two">
-                <div id="player_two_ships_stat">
-                    <img  id="ship_player_two_1_1" class="cell_1 ship" src="/images/1_cell_ship.png" alt="3cell_ship">
-                    <img  id="ship_player_two_1_2" class="cell_1 ship" src="/images/1_cell_ship.png" alt="3cell_ship">
-                    <img  id="ship_player_two_1_3" class="cell_1 ship" src="/images/1_cell_ship.png" alt="3cell_ship">
-                    <img  id="ship_player_two_1_4" class="cell_1 ship" src="/images/1_cell_ship.png" alt="3cell_ship">
+      </div>
+      <div class="items_wrapper">
+        <h3 id="player_two_name">Player 2</h3>
+        <div class="bords_wrapper two">
+          <div id="player_two_ships_stat">
+            <img
+              id="ship_player_two_1_1"
+              class="cell_1 ship"
+              src="/images/1_cell_ship.png"
+              alt="3cell_ship"
+            />
+            <img
+              id="ship_player_two_1_2"
+              class="cell_1 ship"
+              src="/images/1_cell_ship.png"
+              alt="3cell_ship"
+            />
+            <img
+              id="ship_player_two_1_3"
+              class="cell_1 ship"
+              src="/images/1_cell_ship.png"
+              alt="3cell_ship"
+            />
+            <img
+              id="ship_player_two_1_4"
+              class="cell_1 ship"
+              src="/images/1_cell_ship.png"
+              alt="3cell_ship"
+            />
 
-                    <img  id="ship_player_two_2_1" class="cell_2 ship" src="/images/2_cell_ship.png" alt="3cell_ship">
-                    <img  id="ship_player_two_2_2" class="cell_2 ship" src="/images/2_cell_ship.png" alt="3cell_ship">
-                    <img  id="ship_player_two_2_3" class="cell_2 ship" src="/images/2_cell_ship.png" alt="3cell_ship">
+            <img
+              id="ship_player_two_2_1"
+              class="cell_2 ship"
+              src="/images/2_cell_ship.png"
+              alt="3cell_ship"
+            />
+            <img
+              id="ship_player_two_2_2"
+              class="cell_2 ship"
+              src="/images/2_cell_ship.png"
+              alt="3cell_ship"
+            />
+            <img
+              id="ship_player_two_2_3"
+              class="cell_2 ship"
+              src="/images/2_cell_ship.png"
+              alt="3cell_ship"
+            />
 
-                    <img  id="ship_player_two_3_1" class="cell_3 ship" src="/images/3_cell_ship.png" alt="3cell_ship">
-                    <img  id="ship_player_two_3_2" class="cell_3 ship" src="/images/3_cell_ship.png" alt="3cell_ship">
+            <img
+              id="ship_player_two_3_1"
+              class="cell_3 ship"
+              src="/images/3_cell_ship.png"
+              alt="3cell_ship"
+            />
+            <img
+              id="ship_player_two_3_2"
+              class="cell_3 ship"
+              src="/images/3_cell_ship.png"
+              alt="3cell_ship"
+            />
 
-                    <img  id="ship_player_two_4" class="cell_4 ship" src="/images/4_cell_ship.jpg" alt="4cell_ship">
-                </div>
-                <div id="player_two_board"></div>
-            </div>
+            <img
+              id="ship_player_two_4"
+              class="cell_4 ship"
+              src="/images/4_cell_ship.jpg"
+              alt="4cell_ship"
+            />
+          </div>
+          <div id="player_two_board"></div>
         </div>
+      </div>
     </div>
-    <div id="modal" class="hidden">Switching the player turn...</div>
-    <div class="ships_examples"></div>
+
     <div id="confirmation_modal" class="confirmation_modal hidden">
-        Are y confirming the ships placement?
-        <div class="button_wrapper">
-            <button id="cancel">Cancel</button>
-            <button id="confirm">Confirm</button>
-        </div>
+      Are y confirming the ships placement?
+      <div class="button_wrapper">
+        <button id="cancel">Cancel</button>
+        <button id="confirm">Confirm</button>
+      </div>
     </div>
-</body>
-<script src="./app.js"></script>
+
+    <div id="blured_coverage" class="blured_coverage">
+      <div id="input_modal" class="confirmation_modal input_modal">
+        <p>Player <span id="player_number">one</span> : enter your nickname</p>
+        <small>It will use in game to discribe you</small>
+        <input type="text" id="player_input" class="player_nickname_input" />
+        <div class="button_wrapper">
+          <button id="confirm_name">Confirm</button>
+        </div>
+      </div>
+    </div>
+  </body>
+  <script src="./app.js"></script>
 </html>

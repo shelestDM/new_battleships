@@ -6,9 +6,7 @@
     font-family: monospace;
     color: blue;
 }
-body{
-    /* background-color: gray; */
-}
+
 :root{
     --cell_size: 35px;
     --player_one_ship_color: orange;
@@ -257,6 +255,7 @@ body{
     left: 50%;
     top: 50%;
     transform: translateY(-50%) rotate(45deg);
+    z-index: 130;
 }
 .hit::before{
     content: '';
@@ -268,6 +267,7 @@ body{
     left: 50%;
     top: 50%;
     transform: translateY(-50%) rotate(-45deg);
+    z-index: 130;
 }
 
 .confirmation_modal{
@@ -294,6 +294,16 @@ body{
     transition: 0.5s;
 }
 
+.confirmation_modal>small{
+    font-size: 14px;
+    line-height: 17px;
+}
+
+.input_modal{
+    height: 250px;
+    position: static;
+    transform: translate(0px);
+}
 .hidden{
     display: none;
 }
@@ -313,6 +323,14 @@ body{
     background-color: white;
     font-size: 16px;
     font-weight: 500;
+    transition: 0.15s;
+}
+
+.button_wrapper>button:hover{
+    background-color: rgb(53, 188, 255);
+}
+.button_wrapper>button:active{
+    transform: scale(0.9);
 }
 
 @keyframes smooth_appear {
@@ -322,4 +340,34 @@ body{
     100%{
         opacity: 1;
     }
+}
+
+.player_nickname_input{
+    border-radius: 10px;
+    padding: 5px 10px;
+    font-family: monospace;
+    outline: none;
+    border: none;
+    font-size: 19px;
+    line-height: 24px;
+    font-weight: 500;
+}
+
+.blured_coverage{
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    backdrop-filter: blur(3px);
+    -webkit-backdrop-filter: blur(3px);
+    z-index: 150;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.message{
+    transition: 0.5s;
+    height: 25px;
 }

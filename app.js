@@ -1,10 +1,27 @@
+const name_spaces = {
+    name: ['Олень','Черепах', 'Птиц', 'Дятел'],
+    adjective: ['Лютый','Бешеный','Турбо','Быстрый']
+}
+
+const prompt_message = document.querySelector('.message');
 const player_one_board_element = document.getElementById('player_one_board');
 const player_two_board_element = document.getElementById('player_two_board');
 const confirmation_modal = document.getElementById('confirmation_modal');
+const player_one_name = document.getElementById('player_one_name');
+const player_two_name = document.getElementById('player_two_name')
+const player_nickname_input = document.getElementById('player_input');
+const confirm_name_button = document.getElementById('confirm_name');
+
 const is_confirmation_modal_opened_first_time = {
     player_one: true,
     player_two: true
 }
+
+const players_names = {
+    player_one: '',
+    player_two: ''
+}
+const ship_count_4_game_start = 1;
 const cell_size = 35;
 const cell_count_x_y = 10;
 
@@ -60,6 +77,15 @@ const started_ship_coordinates = {
     'ship_player_two_4': { right: 50, top: first_player_stat_board_top_coordinate + cell_size * 7 },
 }
 
+const collected_ship_coordinates = { player_one_ships: [], player_two_ships: [] };
+const hitted_ship_coordinates = { player_one_ships: [], player_two_ships: [] };
+
+let player_turn = 'one';
+
+const players_destroyed_ships = {
+    player_one: 0,
+    player_two: 0
+};
 
 function generateHTMLBoardGridForBothPlayers() {
     while (count_of_cells > 0) {
@@ -70,6 +96,24 @@ function generateHTMLBoardGridForBothPlayers() {
 }
 
 generateHTMLBoardGridForBothPlayers();
+
+confirm_name_button.addEventListener('click',function(){
+    let player_name = player_nickname_input.value.length > 2 ? player_nickname_input.value :  getRandomName();
+
+    if(player_turn === 'one'){
+        player_one_name.textContent +=  ` : ${player_name}`;
+        players_names.player_one = player_name;
+        player_nickname_input.value = '';
+        player_turn = 'two';
+        document.getElementById('player_number').textContent = player_turn;
+    }else{
+        player_two_name.textContent += ` : ${player_name}`;
+        players_names.player_two =  player_name;
+        player_nickname_input.value = '';
+        player_turn = 'one';
+        document.getElementById('blured_coverage').remove();
+    }
+})
 
 const ships_elements = [...document.querySelectorAll(".ship")];
 
@@ -162,7 +206,6 @@ ships_elements.slice(0, 10).forEach((ship) => {
                 }
 
                 if (!isShipInsideBoard) {
-                    console.log('object');
                     player_one_board_element.append(ship);
                 }
                 ship.style.left = new_left + 'px';
@@ -174,7 +217,7 @@ ships_elements.slice(0, 10).forEach((ship) => {
                     'one'
                 );
                 subscribeOnParentElementUpdate(player_one_board_element, 'one');
-                switchPlayerTurnToSetShips()
+                observePlayerShipCountPlacement('one')
             }
         }
         ship.ondragstart = function () {
@@ -183,115 +226,115 @@ ships_elements.slice(0, 10).forEach((ship) => {
     }
 })
 
-// ships_elements.slice(10, ships_elements.length).forEach((ship) => {
+ships_elements.slice(10, ships_elements.length).forEach((ship) => {
 
-//     ship.style.right = started_ship_coordinates[ship.id].right + 'px';
-//     ship.style.top = started_ship_coordinates[ship.id].top + 'px';
+    ship.style.right = started_ship_coordinates[ship.id].right + 'px';
+    ship.style.top = started_ship_coordinates[ship.id].top + 'px';
 
-//     let currentDroppable = null;
-//     let isShipInsideBoard = false;
+    let currentDroppable = null;
+    let isShipInsideBoard = false;
 
-//     ship.onmousedown = function (e) { // добавляем слушатель события на корабль нажатия мышки
-//         ship.style.zIndex = 101;
-//         let shiftX = e.clientX - ship.getBoundingClientRect().left; //сдвиг по оси Х
-//         let shiftY = e.clientY - ship.getBoundingClientRect().top; //сдвиг по оси У
-//         let isInDropZone = false;
+    ship.onmousedown = function (e) { // добавляем слушатель события на корабль нажатия мышки
+        ship.style.zIndex = 101;
+        let shiftX = e.clientX - ship.getBoundingClientRect().left; //сдвиг по оси Х
+        let shiftY = e.clientY - ship.getBoundingClientRect().top; //сдвиг по оси У
+        let isInDropZone = false;
 
-//         if (isShipInsideBoard) {
-//             setDroppableClassToCell(old_unavailable_cells[ship.id], 'two')
-//             old_unavailable_cells[ship.id] = []
-//         }
+        if (isShipInsideBoard) {
+            setDroppableClassToCell(old_unavailable_cells[ship.id], 'two')
+            old_unavailable_cells[ship.id] = []
+        }
 
-//         moveAt(e.pageX, e.pageY);
-//         let new_left =
-//             ship_coordinates[ship.id]
-//                 ? document.getElementById(`player_two_${ship_coordinates[ship.id][0]}`).getBoundingClientRect().left - player_two_board_left
-//                 : 0;
+        moveAt(e.pageX, e.pageY);
+        let new_left =
+            ship_coordinates[ship.id]
+                ? document.getElementById(`player_two_${ship_coordinates[ship.id][0]}`).getBoundingClientRect().left - player_two_board_left
+                : 0;
 
-//         let new_top =
-//             ship_coordinates[ship.id]
-//                 ? document.getElementById(`player_two_${ship_coordinates[ship.id][0]}`).getBoundingClientRect().top - player_two_board_top
-//                 : 0;
+        let new_top =
+            ship_coordinates[ship.id]
+                ? document.getElementById(`player_two_${ship_coordinates[ship.id][0]}`).getBoundingClientRect().top - player_two_board_top
+                : 0;
 
-//         function moveAt(pageX, pageY) {
-//             ship.style.left = pageX - shiftX - (isShipInsideBoard ? player_two_board_left : 0) + 'px';
-//             ship.style.top = pageY - shiftY - (isShipInsideBoard ? player_two_board_top : 0) + 'px';
-//         }
+        function moveAt(pageX, pageY) {
+            ship.style.left = pageX - shiftX - (isShipInsideBoard ? player_two_board_left : 0) + 'px';
+            ship.style.top = pageY - shiftY - (isShipInsideBoard ? player_two_board_top : 0) + 'px';
+        }
 
-//         function onMouseMove(e) {
-//             moveAt(e.pageX, e.pageY);
-//             ship.hidden = true;
-//             let elemBelow = document.elementFromPoint(e.clientX, e.clientY);
-//             ship.hidden = false;
+        function onMouseMove(e) {
+            moveAt(e.pageX, e.pageY);
+            ship.hidden = true;
+            let elemBelow = document.elementFromPoint(e.clientX, e.clientY);
+            ship.hidden = false;
 
-//             if (!elemBelow) return;
+            if (!elemBelow) return;
 
-//             let droppableBelow = elemBelow.closest('.droppable_player_two');
+            let droppableBelow = elemBelow.closest('.droppable_player_two');
 
-//             if (isShipInsideBoard) {
-//                 currentDroppable = droppableBelow;
-//                 if (currentDroppable) {
-//                     isInDropZone = true;
-//                     new_left = Math.floor((e.pageX - player_two_board_left) / cell_size) * cell_size;
-//                     new_top = Math.floor(Math.abs((e.pageY - player_two_board_top)) / cell_size) * cell_size;
-//                 }
-//             }
+            if (isShipInsideBoard) {
+                currentDroppable = droppableBelow;
+                if (currentDroppable) {
+                    isInDropZone = true;
+                    new_left = Math.floor((e.pageX - player_two_board_left) / cell_size) * cell_size;
+                    new_top = Math.floor(Math.abs((e.pageY - player_two_board_top)) / cell_size) * cell_size;
+                }
+            }
 
-//             if (currentDroppable != droppableBelow) {
-//                 if (currentDroppable) {
-//                     isInDropZone = false;
-//                 }
+            if (currentDroppable != droppableBelow) {
+                if (currentDroppable) {
+                    isInDropZone = false;
+                }
 
-//                 currentDroppable = droppableBelow;
-//                 if (currentDroppable) {
-//                     isInDropZone = true;
-//                     new_left = Math.floor((e.pageX - player_two_board_left) / cell_size) * cell_size;
-//                     new_top = Math.floor(Math.abs((e.pageY - player_two_board_top)) / cell_size) * cell_size;
-//                 }
-//             }
-//         }
+                currentDroppable = droppableBelow;
+                if (currentDroppable) {
+                    isInDropZone = true;
+                    new_left = Math.floor((e.pageX - player_two_board_left) / cell_size) * cell_size;
+                    new_top = Math.floor(Math.abs((e.pageY - player_two_board_top)) / cell_size) * cell_size;
+                }
+            }
+        }
 
-//         document.addEventListener("mousemove", onMouseMove);
+        document.addEventListener("mousemove", onMouseMove);
 
-//         ship.onmouseup = function () {
-//             document.removeEventListener("mousemove", onMouseMove);
-//             ship.onmouseup = null;
-//             ship.style.zIndex = 100;
+        ship.onmouseup = function () {
+            document.removeEventListener("mousemove", onMouseMove);
+            ship.onmouseup = null;
+            ship.style.zIndex = 100;
 
-//             if (!isInDropZone && !isShipInsideBoard) {
-//                 moveAt(
-//                     started_ship_coordinates[ship.id].left + shiftX,
-//                     started_ship_coordinates[ship.id].top + shiftY
-//                 );
-//             }
-//             else {
-//                 let max_available_coordinate_to_set_left = (cell_count_x_y - ship.getBoundingClientRect().width / cell_size) * cell_size;
+            if (!isInDropZone && !isShipInsideBoard) {
+                moveAt(
+                    started_ship_coordinates[ship.id].left + shiftX,
+                    started_ship_coordinates[ship.id].top + shiftY
+                );
+            }
+            else {
+                let max_available_coordinate_to_set_left = (cell_count_x_y - ship.getBoundingClientRect().width / cell_size) * cell_size;
 
-//                 if (new_left > max_available_coordinate_to_set_left) {
-//                     new_left = max_available_coordinate_to_set_left
-//                 }
+                if (new_left > max_available_coordinate_to_set_left) {
+                    new_left = max_available_coordinate_to_set_left
+                }
 
-// if(!isShipInsideBoard){
-//     console.log('object');
-//     player_two_board_element.append(ship);
-// }
-//          
-//                 ship.style.left = new_left + 'px';
-//                 ship.style.top = new_top + 'px';
-//                 isShipInsideBoard = true;
-//                 writeShipCoordinates(new_top, new_left, ship);
-//                 setCellsUnavailableToSetShip(
-//                     getUnavailableCells(ship_coordinates[ship.id], ship, 'two'), 
-//                     'two'
-//                 );
-//subscribeOnParentElementUpdate(player_two_board_element,'two')                  
-//             }
-//         }
-//         ship.ondragstart = function () {
-//             return false;
-//         }
-//     }
-// })
+                if (!isShipInsideBoard) {
+                    player_two_board_element.append(ship);
+                }
+
+                ship.style.left = new_left + 'px';
+                ship.style.top = new_top + 'px';
+                isShipInsideBoard = true;
+                writeShipCoordinates(new_top, new_left, ship);
+                setCellsUnavailableToSetShip(
+                    getUnavailableCells(ship_coordinates[ship.id], ship, 'two'),
+                    'two'
+                );
+                subscribeOnParentElementUpdate(player_two_board_element, 'two');
+                observePlayerShipCountPlacement('two')
+            }
+        }
+        ship.ondragstart = function () {
+            return false;
+        }
+    }
+})
 
 function getStartedId(top_coordinate, left_coordinate) {
     let id = '';
@@ -317,10 +360,18 @@ function writeShipCoordinates(top_coordinate, left_coordinate, ship) {
 }
 
 function collectAllShipCoordinates() {
-    let collected_ship_coordinates = [];
     for (const key in ship_coordinates) {
-        collected_ship_coordinates = [...collected_ship_coordinates, ...ship_coordinates[key]];
+        collected_ship_coordinates[`player_${key.includes('one') ? 'one' : 'two'}_ships`].push({
+            coordinates: ship_coordinates[key],
+            hitCount: 0,
+            isDestroyed: false,
+            id: key,
+            player: key.includes('one') ? 'one' : 'two'
+        })
     }
+
+    console.log('collected_ship_coordinates', collected_ship_coordinates);
+    return collected_ship_coordinates;
 }
 
 function getUnavailableCells(ship_coordinate_arr, ship, player_number) {
@@ -404,25 +455,14 @@ function setCoordinatesToShip(ship, top_coordinate, left_coordinate) {
 
 function subscribeOnParentElementUpdate(player_board_element, player_number) {
     ship_inside_board_count[`player_${player_number}`] = player_board_element.childElementCount - 100;
-    console.log('ship_inside_board_count', ship_inside_board_count);
 }
 
-function switchPlayerTurnToSetShips() {
-    if (ship_inside_board_count.player_one === 2) {
-        console.log('object');
-        is_confirmation_modal_opened_first_time.player_one = false;
-        confirmation_modal.classList.remove('hidden');
-        document.getElementById('cancel').addEventListener('click', onCancelhipPlacement, { once: true });
-        document.getElementById('confirm').addEventListener('click', (e)=>onConfirmShipPlacement(e, 'one'), { once: true });
+function observePlayerShipCountPlacement(player_number) {
+    if (ship_inside_board_count[`player_${player_number}`] === ship_count_4_game_start) {
+        is_confirmation_modal_opened_first_time[`player_${player_number}`] = false;
+        showModal()
+        activateModalButtons(player_number)
     }
-
-    if (ship_inside_board_count.player_two === 10) {
-        startGame()
-    }
-}
-
-function startGame() {
-    alert('start!')
 }
 
 function onCancelhipPlacement() {
@@ -431,10 +471,89 @@ function onCancelhipPlacement() {
 
 function onConfirmShipPlacement(_e, player_number) {
     confirmation_modal.classList.add('hidden');
+    confirmation_modal.style.top = '50%'
     hidePlayerShips(player_number);
+    if (ship_inside_board_count.player_one === ship_count_4_game_start && ship_inside_board_count.player_two === ship_count_4_game_start) {
+        startGame();
+    }
 }
 
 function hidePlayerShips(player_number) {
-    document.querySelectorAll(`#player_${player_number}_board .ship`).forEach(ship=>ship.classList.add("hidden"));
-    document.querySelectorAll(`#player_${player_number}_board .line`).forEach(element_with_line=>element_with_line.classList.remove('line'))
+    document.querySelectorAll(`#player_${player_number}_board .ship`).forEach(ship => ship.classList.add("hidden"));
+    document.querySelectorAll(`#player_${player_number}_board .line`).forEach(element_with_line => element_with_line.classList.remove('line'))
+}
+
+function showModal() {
+    confirmation_modal.classList.remove('hidden');
+}
+
+function activateModalButtons(player_number) {
+    document.getElementById('cancel').addEventListener('click', onCancelhipPlacement, { once: true });
+    document.getElementById('confirm').addEventListener('click', (e) => onConfirmShipPlacement(e, player_number), { once: true });
+}
+
+function onAttackPlayerHandler(e, player_number) {
+    let hitted_cell_id = +e.target.id.split("_")[2];
+    let hittedShipObject = collected_ship_coordinates[`player_${player_number}_ships`].find(ship_data => ship_data.coordinates.includes(hitted_cell_id));
+
+    if (!e.target.parentElement.id.includes(player_turn) && hittedShipObject) {
+        e.target.classList.add("hit");
+        shipHit(hittedShipObject);
+        console.log('if');
+
+    } else if (!e.target.parentElement.id.includes(player_turn) && !hittedShipObject) {
+        e.target.classList.add("miss");
+        player_turn = player_turn === 'one' ? 'two' : 'one'
+        console.log('else if');
+        prompt_message.textContent = `Now is ${players_names[`player_${player_turn}`]} turn to hit the enemy!`
+    } else if (e.target.parentElement.id.includes(player_turn)) {
+        alert('now is not your turn to hit ships')
+        console.log('else if 2');
+    }
+
+
+}
+
+const onAttackPlayerOne = (e) => onAttackPlayerHandler(e, 'one');
+const onAttackPlayerTwo = (e) => onAttackPlayerHandler(e, 'two');
+
+function startGame() {
+    collectAllShipCoordinates()
+    player_one_board_element.addEventListener('click', onAttackPlayerOne);
+    player_two_board_element.addEventListener('click', onAttackPlayerTwo);
+    console.log(players_names[`player_${player_turn}`]);
+    console.log(`player_${player_turn}`);
+    console.log('players_names',players_names);
+    prompt_message.textContent = players_names[`player_${player_turn}`] + ' turn: hit the enemy!'
+}
+
+function shipHit(ship_data) {
+    ship_data.hitCount++;
+
+    if (ship_data.hitCount === ship_data.coordinates.length) {
+        players_destroyed_ships[`player_${ship_data.player}`]++;
+        highlightDestroyedShip(old_unavailable_cells[ship_data.id], ship_data.player)
+    };
+    console.log('players_destroyed_ships',players_destroyed_ships);
+    checkWinner();
+}
+
+function highlightDestroyedShip(coordinates_to_highlight, player_number) {
+    coordinates_to_highlight.forEach(id => {
+        if (document.getElementById(`player_${player_number}_${id}`)) document.getElementById(`player_${player_number}_${id}`).classList.add('line')
+    })
+}
+
+function checkWinner() {
+    for (const key in players_destroyed_ships) {
+        if(players_destroyed_ships[key] === ship_count_4_game_start){
+            alert(`${key} WON!`)
+            player_one_board_element.removeEventListener('click', onAttackPlayerOne);
+            player_two_board_element.removeEventListener('click', onAttackPlayerTwo);
+        }
+    }
+}
+
+function getRandomName () {
+    return  name_spaces.adjective[Math.floor(Math.random() *( name_spaces.adjective.length-1))] + " " + name_spaces.name[Math.floor(Math.random() * (name_spaces.name.length-1))]
 }
